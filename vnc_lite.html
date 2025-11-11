@@ -128,8 +128,8 @@
 
         // Read parameters specified in the URL query string
         // By default, use the host and port of server that served this file
-        const host = readQueryVariable('host', window.location.hostname);
-        let port = readQueryVariable('port', window.location.port);
+        const host = readQueryVariable('host');
+        let port = readQueryVariable('port');
         const password = readQueryVariable('password');
         const path = readQueryVariable('path', 'websockify');
 
@@ -141,19 +141,29 @@
 
         // Build the websocket URL used to connect
         let url;
-        if (window.location.protocol === "https:") {
-            url = 'wss';
+        if (host) {
+            url = new URL("https://" + host);
+
+            url.protocol = (window.location.protocol === "https:") ? 'wss:' : 'ws:';
+            if (port) {
+                url.port = port;
+            }
+
+            // "./" is needed to force URL() to interpret the path-variable as
+            // a path and not as an URL. This is relevant if for example path
+            // starts with more than one "/", in which case it would be
+            // interpreted as a host name instead.
+            url = new URL("./" + path, url);
         } else {
-            url = 'ws';
+            // Current (May 2024) browsers support relative WebSocket
+            // URLs natively, but we need to support older browsers for
+            // some time.
+            url = new URL(path, location.href);
+            url.protocol = (window.location.protocol === "https:") ? 'wss:' : 'ws:';
         }
-        url += '://' + host;
-        if(port) {
-            url += ':' + port;
-        }
-        url += '/' + path;
 
         // Creating a new RFB object will start a new connection
-        rfb = new RFB(document.getElementById('screen'), url,
+        rfb = new RFB(document.getElementById('screen'), url.href,
                       { credentials: { password: password } });
 
         // Add listeners to important events from the RFB module
