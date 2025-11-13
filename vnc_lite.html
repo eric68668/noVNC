@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
     <!--
@@ -17,7 +18,6 @@
     <title>noVNC</title>
 
     <style>
-
         body {
             margin: 0;
             background-color: dimgrey;
@@ -25,6 +25,7 @@
             display: flex;
             flex-direction: column;
         }
+
         html {
             height: 100%;
         }
@@ -35,10 +36,13 @@
             font: bold 12px Helvetica;
             padding: 6px 5px 4px 5px;
             border-bottom: 1px outset;
+            display: none;
         }
+
         #status {
             text-align: center;
         }
+
         #sendCtrlAltDelButton {
             position: fixed;
             top: 0px;
@@ -49,10 +53,10 @@
         }
 
         #screen {
-            flex: 1; /* fill remaining space */
+            flex: 1;
+            /* fill remaining space */
             overflow: hidden;
         }
-
     </style>
 
     <script type="module" crossorigin="anonymous">
@@ -113,7 +117,7 @@
             // Note that we use location.href instead of location.search
             // because Firefox < 53 has a bug w.r.t location.search
             const re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
-                  match = document.location.href.match(re);
+                match = document.location.href.match(re);
 
             if (match) {
                 // We have to decode the URL since want the cleartext value
@@ -133,11 +137,17 @@
         const password = readQueryVariable('password');
         const path = readQueryVariable('path', 'websockify');
 
+        // Hide the top bar if the hide_top_bar query parameter is set to true
+        const showTopBar = readQueryVariable('show_top_bar', 'true');
+        if (showTopBar === 'true') {
+            document.getElementById('top_bar').style.display = 'block';
+        }
+
         // | | |         | | |
         // | | | Connect | | |
         // v v v         v v v
 
-        status("Connecting");
+        // status("Connecting");
 
         // Build the websocket URL used to connect
         let url;
@@ -164,10 +174,10 @@
 
         // Creating a new RFB object will start a new connection
         rfb = new RFB(document.getElementById('screen'), url.href,
-                      { credentials: { password: password } });
+            { credentials: { password: password } });
 
         // Add listeners to important events from the RFB module
-        rfb.addEventListener("connect",  connectedToServer);
+        rfb.addEventListener("connect", connectedToServer);
         rfb.addEventListener("disconnect", disconnectedFromServer);
         rfb.addEventListener("credentialsrequired", credentialsAreRequired);
         rfb.addEventListener("desktopname", updateDesktopName);
@@ -187,4 +197,5 @@
         <!-- This is where the remote screen will appear -->
     </div>
 </body>
+
 </html>
