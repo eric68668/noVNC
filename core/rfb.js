@@ -221,7 +221,7 @@ export default class RFB extends EventTargetMixin {
         this._screen.style.width = '100%';
         this._screen.style.height = '100%';
         this._screen.style.overflow = 'auto';
-        this._screen.style.background = DEFAULT_BACKGROUND;
+        this._screen.style.background = options.background || DEFAULT_BACKGROUND;
         this._canvas = document.createElement('canvas');
         this._canvas.style.margin = 'auto';
         // Some browsers add an outline on focus
